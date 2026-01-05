@@ -1,238 +1,152 @@
-# ESP32 8×8 LED Matrix Shape Gallery Project
+# ESP32 "Musashi" IoT LED Matrix Studio
 
-This repository contains a complete project for driving a single 8×8 LED matrix using an ESP32 and two 74HC595 shift registers. The program displays multiple clear pixel-based shapes in a continuous slideshow. The project is implemented and built using PlatformIO in Visual Studio Code.
+**A professional, web-controlled 8×8 LED Matrix driven by an ESP32 and 74HC595 shift registers.**
 
-The goal of the project is to learn:
+This repository contains the advanced firmware for the **Musashi Studio** project. Unlike basic blink examples, this project implements a **non-blocking rendering engine**, a **responsive AJAX web dashboard**, and a massive library of procedural animations and bitmaps. 
 
-* how an LED matrix works
-* how to multiplex rows and columns
-* how to use 74HC595 shift registers
-* how to generate custom shapes and symbols on an 8×8 matrix
+The system allows you to control animations, scrolling text, and geometric patterns wirelessly from any smartphone or computer **without reloading the webpage**.
 
 ---
 
-## 1. Project Summary
+## 1. Project Features
 
-The LED matrix contains 64 LEDs arranged as 8 rows by 8 columns.
-To reduce the number of pins required, the LEDs are internally grouped and controlled using common anode or common cathode wiring. In this project, a common anode matrix is used.
+This project goes beyond simple multiplexing to demonstrate professional IoT concepts:
 
-The ESP32 sends data to the LED matrix column by column. Due to human visual persistence, even though only one column is actually lit at a time, the pattern appears as a complete image.
-
-Two 74HC595 shift registers are used so that only a few ESP32 GPIO pins are required.
+* **IoT Web Dashboard:** Control the matrix wirelessly via a mobile-friendly web interface.
+* **AJAX Communication:** Instant button response using the JavaScript `fetch` API. The page never reloads, providing an "App-like" feel.
+* **Non-Blocking Engine:** Animations use `millis()` timers instead of `delay()`. This ensures the Wi-Fi connection remains stable and responsive even during complex rendering.
+* **Orientation Correction (Mode 8):** Advanced software mapping that mathematically corrects matrix rotation or wiring inversions on the fly.
+* **50+ Shape Library:** A built-in database of icons, Islamic geometric art, weather symbols, and retro game sprites.
+* **Procedural Animations:** Real-time calculated effects including **Rolling Gears**, **Radar Scans**, and **Pacman** gameplay.
+* **mDNS Support:** Access the dashboard via `http://musashi.local` instead of hunting for IP addresses.
 
 ---
 
 ## 2. Platform and Tools
 
-* Visual Studio Code
-* PlatformIO extension
-* ESP32 board support in PlatformIO
-* C/C++ programming language
-
-This project is written for PlatformIO, but the source code can be adapted to the Arduino IDE if necessary.
+* **IDE:** Visual Studio Code with **PlatformIO** extension.
+* **Framework:** Arduino for ESP32.
+* **Hardware:** ESP32-WROVER (or standard ESP32 Dev Module).
+* **Language:** C++ (Embedded).
 
 ---
 
-## 3. Components Used
+## 3. Hardware Architecture
 
-The images for component explanation are already uploaded in the repository in the `image` folder. The filenames below match your repository.
+The project uses two 74HC595 shift registers to expand the ESP32's GPIO capability. We drive 16 pins (8 rows + 8 columns) using only **3 data lines** from the ESP32.
 
-### Component list image
+### Component List
+* **Controller:** ESP32 Development Board
+* **Drivers:** 2× 74HC595 Shift Registers (Daisy-chained)
+* **Display:** 8×8 LED Dot Matrix (Common Anode)
+* **Passive:** 8× 220Ω Resistors (Current limiting for rows)
+* **Power:** 5V via USB (Logic level 3.3V)
 
-File:
-`image/component.jpg`
+### Components Overview
+Below is the full collection of parts used in the project:
 ![Component Image](image/component.jpg)
 
+### Matrix Theory & Pinout
+The LED matrix is a grid of 64 LEDs. To control them, we use **Multiplexing**: scanning one column at a time so fast that the human eye sees a complete image.
 
-This image shows the full collection of parts used in the project.
-
-### Detailed component knowledge image
-
-Files:
-`image/component_knowledge.jpg`
-`image/component_knowledge1.jpg`
-![Component Image](image/component_knowledge.jpg)
-![Component Image](image/component_knowledge1.jpg)
+![Component Knowledge](image/component_knowledge.jpg)
+![Component Knowledge 1](image/component_knowledge1.jpg)
 
 These images explain:
-
-* structure of LED matrix
-* pin numbering
-* difference between common anode and common cathode
-* internal LED arrangement
-
-### Breadboard and GPIO board
-
-* ESP32-WROVER development board
-* ESP32 GPIO extension board
-* Full-size breadboard
-
-### IC and passive components
-
-* 74HC595 shift register IC x2
-* 8×8 LED dot matrix display x1
-* 220 Ω resistors x8
-* Male-to-male jumper wires
+* Structure of the LED matrix.
+* Pin numbering.
+* Difference between Common Anode and Common Cathode.
+* Internal LED arrangement.
 
 ---
 
-## 4. How the LED Matrix Works
+## 4. Circuit & Wiring
 
-The matrix can be common anode or common cathode.
+The ESP32 communicates with the first 74HC595 (Rows), which passes data to the second 74HC595 (Columns).
 
-In this project:
+### Circuit Schematic
+This schematic shows the electrical connections between the ESP32, the shift registers, and the matrix.
+![Circuit Schematic](image/circuit.jpg)
 
-* rows share common positive terminals
-* columns are controlled as negative returns
+### Hardware Wiring Layout
+A step-by-step breadboard wiring guide. This corresponds directly to the schematic above.
+![Hardware Wiring](image/hardware_connection.jpg)
 
-To display an image:
+### Pin Mapping (Code Configuration)
 
-1. select a column
-2. enable appropriate rows as binary pattern
-3. add a short delay
-4. move to next column
-5. repeat continuously
+| ESP32 Pin | 74HC595 Pin | Function | Description |
+| :--- | :--- | :--- | :--- |
+| **GPIO 15** | Pin 14 (DS) | **Data** | Serial data input |
+| **GPIO 4** | Pin 11 (SH_CP) | **Clock** | Shift register clock |
+| **GPIO 2** | Pin 12 (ST_CP) | **Latch** | Storage register clock |
+| **3.3V / 5V** | Pin 16 (VCC) | **Power** | IC Power Supply |
+| **GND** | Pin 8 (GND) | **Ground** | Common Ground |
 
-Persistence of vision makes it appear static.
-
-The image `component_knowledge.jpg` contains graphical explanation and bit patterns for displaying a smile symbol.
-
----
-
-## 5. Circuit and Wiring
-
-### Circuit schematic
-
-File:
-`image/circuit.jpg`
-![Component Image](image/circuit.jpg)
-This schematic shows electrical connection between:
-
-* ESP32
-* two 74HC595 ICs
-* LED matrix rows and columns
-* resistors for current limiting
-
-74HC595 connections:
-
-* one IC drives rows
-* one IC drives columns
-* latch, clock, and data are shared
-
-Power supply:
-
-* 3.3 V logic used
-* optionally 5 V matrix supply for higher brightness
-
-### Hardware wiring layout
-
-File:
-`image/hardware_connection.jpg`
-![Component Image](image/hardware_connection.jpg)
-This breadboard wiring diagram shows actual jumper wire routing.
-It corresponds directly to the schematic and can be followed step by step when assembling the hardware.
+*Note: The Output Enable (OE) is grounded (always on) and Master Reset (MR) is tied High to VCC.*
 
 ---
 
-## 6. Pin Connections (ESP32 to 74HC595)
+## 5. Software Architecture
 
-The default pin mapping in the code:
+The software is designed in layers to simulate a multi-threaded environment on a single core.
 
-* GPIO 15 → DS (Data)
-* GPIO 4 → SH_CP (Clock)
-* GPIO 2 → ST_CP (Latch)
-* GND → GND
-* 3.3 V → VCC
+### 1. The Rendering Engine (`render()`)
+This function runs thousands of times per second. It reads from a `frameBuffer` array and pushes data to the shift registers. It includes the **"Mode 8"** transformation algorithm, which mathematically flips and rotates bits to match the physical orientation of the matrix, ensuring images are always upright.
 
-If your ESP32 layout is different, edit the pin constants in code.
+### 2. The Animation State Machine (`updateAnimations()`)
+Unlike beginner code that uses `delay(100)`, which freezes the processor, this engine uses `millis()`.
+* It checks: *"Has 100ms passed since the last frame?"*
+* If **Yes**: It draws the next frame of the Gear or Pacman animation.
+* If **No**: It immediately yields control back to the Wi-Fi handler.
+This allows the dashboard buttons to work instantly, even while an animation is playing.
 
----
-
-## 7. Software Operation
-
-The code:
-
-* initializes GPIO pins
-* performs full LED self-test
-* refreshes the matrix using multiplexing
-* cycles through many stored shapes
-* each shape is displayed for a defined time
-
-Shapes belong to groups such as:
-
-* emoji faces
-* geometric shapes
-* retro game patterns
-* simple Islamic art style shapes
-* mathematical patterns
-
-You can add your own by defining 8-byte arrays.
+### 3. The Async Web Server
+The ESP32 hosts a website stored in its flash memory.
+* **Frontend:** HTML/CSS/JavaScript with a grid layout.
+* **Backend:** Listens for HTTP requests like `/set?id=101`.
+* **Communication:** Uses AJAX (Asynchronous JavaScript and XML) to send commands silently in the background.
 
 ---
 
-## 8. Building and Uploading the Code (PlatformIO)
+## 6. Installation & Setup
 
-Steps to compile using PlatformIO:
-
-1. Open Visual Studio Code
-2. Install PlatformIO extension
-3. Create a new ESP32 project
-4. Select board such as `esp32dev`
-5. Replace `src/main.cpp` with the project source file
-6. Connect ESP32 by USB
-7. Click “Upload”
-
-PlatformIO will compile and flash automatically.
-
----
-
-
-## 9. Troubleshooting
-
-Nothing lights up:
-
-* check 3.3 V and GND
-* check common ground between ESP32 and matrix
-* verify latch, clock, and data lines
-
-Random blinking:
-
-* wiring error in 74HC595 connections
-
-Shape mirrored or upside down:
-
-* rotate matrix physically
-* reverse row or column orientation in software
-
-Low brightness:
-
-* use lower resistor value like 220 Ω
-* supply matrix with 5 V if supported
+1.  **Clone the Repository:**
+    ```bash
+    git clone [https://github.com/your-username/musashi-led-matrix.git](https://github.com/your-username/musashi-led-matrix.git)
+    ```
+2.  **Open in PlatformIO:**
+    Open the project folder in Visual Studio Code.
+3.  **Configure Wi-Fi:**
+    Open `src/main.cpp` and edit the credentials:
+    ```cpp
+    const char* ssid = "iPhone";      // Your Network Name
+    const char* password = "aassddff"; // Your Password
+    ```
+4.  **Upload:**
+    Connect ESP32 via USB and click the **PlatformIO: Upload** button.
+5.  **Monitor:**
+    Open the Serial Monitor (115200 baud) to verify the connection and see the IP address.
 
 ---
 
-## 11. Future Improvements
+## 7. How to Use the Dashboard
 
-Possible extensions:
-
-* Wi-Fi remote control
-* phone or browser dashboard
-* Bluetooth operation
-* scrolling text
-* interactive buttons
-* multiple cascaded matrices
-
----
-
-## 12. Conclusion
-
-This project demonstrates how to:
-
-* control LED matrices
-* use shift registers for IO expansion
-* implement multiplex display refresh
-* design binary graphics manually
-
-It is a practical starting point for more advanced LED signage and display systems.
+1.  **Connect:** Ensure your phone or laptop is on the same Wi-Fi network (or Hotspot) as the ESP32.
+2.  **Access:**
+    * **Easy Method:** Open browser and type `http://musashi.local`
+    * **Direct Method:** Type the IP address shown in Serial Monitor (e.g., `http://172.20.10.3`).
+3.  **Control:**
+    * **Animations:** Click buttons like "GEAR ROLL" or "PACMAN" to start live procedural animations.
+    * **Typing:** Click "MUSASHI" to see the name typed out letter-by-letter.
+    * **Shapes:** Select from 50+ icons (Islamic Star, Checkmark, Weather, etc.).
+    * **Stop:** Click the red "STOP" button to clear the matrix.
 
 ---
+
+## 8. Customization Guide
+
+### Adding New Shapes
+You can add your own 8x8 bitmaps to the `SHAPES` array in `main.cpp`. 
+```cpp
+// Example: A solid box shape
+{0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF},
