@@ -140,7 +140,7 @@ The ESP32 hosts a website stored in its flash memory.
     * **Typing:** Click "MUSASHI" to see the name typed out letter-by-letter.
     * **Shapes:** Select from 50+ icons (Islamic Star, Checkmark, Weather, etc.).
     * **Stop:** Click the red "STOP" button to clear the matrix.
-
+![Hardware Wiring](image/webdemo.jpg)
 ---
 
 ## 8. Customization Guide
@@ -165,6 +165,7 @@ To change the text in the typing animations (like "MUSASHI" or "RAHMAN"), modify
 int seq[] = {12, 20, 18, 0, 18, 7, 8}; // Indices for M, U, S, A, S, H, I
 // Change these numbers to match the letters in the ALPHABET array you want to spell.
 
+---
 
 
 ##9. Troubleshooting
@@ -187,6 +188,7 @@ If your matrix looks wrong, you do not need to rewire it. Simply adjust the bit-
 Slight flickering during heavy Wi-Fi activity is normal as the single-core ESP32 handles network traffic.
 
 If flickering is severe, check your breadboard jumper wires—loose connections on the latch (ST_CP) or clock (SH_CP) pins are the most common cause.
+---
 
 ##10. Future Roadmap
 Cloud Control: Integrate MQTT (Message Queuing Telemetry Transport) to control the matrix from outside the local network via the Internet.
@@ -196,6 +198,7 @@ NTP Clock: Fetch real-time data from NTP servers to display a digital clock.
 Audio Visualization: Add an analog microphone module (MAX4466) to make the matrix react to music beats.
 
 RGB Upgrade: Port the logic to support WS2812B (NeoPixel) matrices for full-color animations.
+---
 
 ##11. Conclusion
 This project demonstrates how to bridge low-level hardware control (Shift Registers, Multiplexing) with high-level software concepts (AJAX, Non-blocking I/O, REST APIs). It serves as a robust foundation for any advanced IoT display system.
