@@ -172,7 +172,7 @@ int seq[] = {12, 20, 18, 0, 18, 7, 8}; // Indices for M, U, S, A, S, H, I
 ---
 
 
-##9. Troubleshooting
+###  **9. Troubleshooting**
 1. Dashboard doesn't load:
 
 Check Network: Ensure you are connected to the 2.4GHz Wi-Fi band (ESP32 does not support 5GHz).
@@ -194,7 +194,7 @@ Slight flickering during heavy Wi-Fi activity is normal as the single-core ESP32
 If flickering is severe, check your breadboard jumper wires—loose connections on the latch (ST_CP) or clock (SH_CP) pins are the most common cause.
 ---
 
-##10. Future Roadmap
+## 10. Future Roadmap
 Cloud Control: Integrate MQTT (Message Queuing Telemetry Transport) to control the matrix from outside the local network via the Internet.
 
 NTP Clock: Fetch real-time data from NTP servers to display a digital clock.
@@ -204,7 +204,7 @@ Audio Visualization: Add an analog microphone module (MAX4466) to make the matri
 RGB Upgrade: Port the logic to support WS2812B (NeoPixel) matrices for full-color animations.
 ---
 
-##11. Conclusion
+## 11. Conclusion
 This project demonstrates how to bridge low-level hardware control (Shift Registers, Multiplexing) with high-level software concepts (AJAX, Non-blocking I/O, REST APIs). It serves as a robust foundation for any advanced IoT display system.
 
 Project Lead: Abdur Rahman Repository: ESP32-IoT-LED-Matrix-Studio License: MIT License
