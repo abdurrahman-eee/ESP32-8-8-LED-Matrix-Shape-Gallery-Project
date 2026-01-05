@@ -41,6 +41,8 @@ The images for component explanation are already uploaded in the repository in t
 
 File:
 `image/component.jpg`
+![Component Image](image/component.jpg)
+
 
 This image shows the full collection of parts used in the project.
 
